@@ -1,6 +1,0 @@
-br\com\api\log\LogConverterTest.class
-br\com\api\cep\LoggingImplTestEntity.class
-br\com\api\cep\CepControllerTest.class
-br\com\api\log\LogServiceTest.class
-br\com\api\log\LogControllerTest.class
-br\com\api\viacep\ViaCepClientTest.class
