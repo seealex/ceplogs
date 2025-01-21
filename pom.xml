@@ -41,7 +41,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-        <!-- No additional dependency required for AOP in Spring Boot -->
+        
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
@@ -56,11 +56,10 @@
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
 
-        <!-- Dependência do AWS SDK DynamoDB -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>sdk-core</artifactId>
-            <version>2.29.52</version> <!-- Choose the latest version -->
+            <version>2.29.52</version>
         </dependency>
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
@@ -78,36 +77,33 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
-
-        <!-- Testes com Spring Boot Starter Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <!-- JUnit 5 dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.8.2</version> <!-- Update to the latest version -->
+            <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.8.2</version> <!-- Update to the latest version -->
+            <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <dependencyManagement>
         <dependencies>
-            <!-- Spring Cloud BOM for dependency management -->
+            
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
-                <version>2022.0.5</version> <!-- Use the correct version here -->
+                <version>2022.0.5</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -125,7 +121,7 @@
 
     <build>
         <plugins>
-            <!-- Plugin Spring Boot para rodar a aplicação -->
+            
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
