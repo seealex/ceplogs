@@ -1,0 +1,44 @@
+version: '3.7'
+
+services:
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack
+    environment:
+      - SERVICES=dynamodb
+      - DEFAULT_REGION=us-east-1
+    ports:
+      - "4566:4566"
+      - "4510-4559:4510-4559"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - localstack-network
+
+  wiremock:
+    image: wiremock/wiremock:3.10.0
+    container_name: wiremock
+    entrypoint: ["/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose"]
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src/main/resources/mocks:/home/wiremock/mappings
+    networks:
+      - localstack-network
+
+  app:
+    build:
+      context: .
+    image: cep-app:latest
+    ports:
+      - "8777:8777"
+    networks:
+      - localstack-network
+    depends_on:
+      - localstack
+      - wiremock
+
+
+networks:
+  localstack-network:
+    driver: bridge

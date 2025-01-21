@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/api/06263215/json/"
+  },
+  "response": {
+    "status": 200,
+    "body": "{\n\"cep\": \"06263-215\",\n\"logradouro\": \"Rua Doutor José Norberto da Fonseca\",\n\"complemento\": \"\",\n\"unidade\": \"\",\n\"bairro\": \"Portal D'Oeste\",\n\"localidade\": \"Osasco\",\n\"uf\": \"SP\",\n\"estado\": \"São Paulo\"}",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

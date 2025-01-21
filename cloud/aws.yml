@@ -1,0 +1,145 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to deploy a Java app in ECS using Docker
+
+Resources:
+  CepEcsCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: cep-ecs-cluster
+
+  CepEcsLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /ecs/cep-app-log-group
+      RetentionInDays: 7
+
+  CepEcsSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable HTTP access to ECS tasks
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '8777'
+          ToPort: '8777'
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: "-1"
+
+  CepEcsTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CepTaskPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: arn:aws:logs:*:*:log-group:/ecs/cep-app-log-group:*
+
+  MyEcsTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: cep-app-task-definition
+      ExecutionRoleArn: !GetAtt CepEcsTaskRole.Arn
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: "256"
+      Memory: "512"
+      ContainerDefinitions:
+        - Name: cep-app-container
+          Image: cep-app:latest
+          Essential: true
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref CepEcsLogGroup
+              awslogs-stream-prefix: ecs
+              awslogs-region: !Ref AWS::Region
+          PortMappings:
+            - ContainerPort: 8777
+
+  CepLoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: fixed-response
+          FixedResponseConfig:
+            StatusCode: 200
+            MessageBody: "Healthy"
+      LoadBalancerArn: !Ref MyLoadBalancer
+      Port: 80
+      Protocol: HTTP
+
+  CepTargetGroup:
+      Type: AWS::ElasticLoadBalancingV2::TargetGroup
+      Properties:
+        Name: cep-app-target-group
+        Port: 80
+        Protocol: HTTP
+        VpcId: !Ref MyVpcId
+        HealthCheckProtocol: HTTP
+        HealthCheckPort: 8777
+        HealthCheckPath: /health
+
+  CepLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: cep-app-loadbalancer
+      Subnets:
+        - Ref: CepVpcSubnet
+      SecurityGroups:
+        - Ref: CepEcsSecurityGroup
+      LoadBalancerAttributes:
+        - Key: idle_timeout.timeout_seconds
+          Value: "60"
+      Scheme: internet-facing
+
+
+  CepEcsService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref CepEcsCluster
+      DesiredCount: 1
+      TaskDefinition: !Ref CepEcsTaskDefinition
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          Subnets:
+            - Ref: CepVpcSubnet
+          SecurityGroups:
+            - Ref: CepEcsSecurityGroup
+          AssignPublicIp: ENABLED
+      LoadBalancers:
+        - TargetGroupArn: !Ref CepTargetGroup
+          ContainerName: cep-app-container
+          ContainerPort: 8777
+
+
+  Outputs:
+    EcsClusterName:
+      Value: !Ref CepEcsCluster
+      Description: The name of the ECS Cluster
+
+    EcsServiceName:
+      Value: !Ref CepEcsService
+      Description: The name of the ECS Service
+
+    LogGroupName:
+      Value: !Ref CepEcsLogGroup
+      Description: The CloudWatch Log Group used by the ECS service
+
+    LoadBalancerDNSName:
+      Value: !GetAtt CepLoadBalancer.DNSName
+      Description: DNS name of the Load Balancer

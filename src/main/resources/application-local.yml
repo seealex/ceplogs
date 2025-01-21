@@ -1,0 +1,10 @@
+dynamodb:
+  endpoint:
+    url: http://localhost:4566
+
+localstack:
+  host: http://localhost:4566
+
+viaCepClient:
+  url: ${VIACEPCLIENT_URL:https://viacep.com.br/ws}
+

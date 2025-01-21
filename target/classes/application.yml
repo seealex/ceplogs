@@ -1,0 +1,28 @@
+server:
+  port: 8777
+
+spring:
+  application:
+    name: cep
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+amazon:
+  aws:
+    accesskey: test
+    secretkey: test
+    region: us-east-1
+
+dynamodb:
+  endpoint:
+    url: https://localstack:4566
+
+viaCepClient:
+  url: ${VIACEPCLIENT_URL:http://localhost:8080/api}
+
+localstack:
+  host: http://localstack:4566
